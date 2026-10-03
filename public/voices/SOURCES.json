@@ -1,0 +1,15 @@
+{
+  "style": "Micah by Micah Lanier",
+  "source": "https://www.dicebear.com/styles/micah/",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "note": "Illustrative voice personas using a sepia palette; not portraits of voice performers.",
+  "avatars": {
+    "af_heart": "https://api.dicebear.com/10.x/micah/svg?backgroundColor=e3d2b4&baseColor=d8b48c&hairColor=5a3d28&shirtColor=8a6a48&eyebrowsColor=3f2d1e&eyesColor=3f2d1e&mouthColor=3f2d1e&facialHairColor=3f2d1e&eyeShadowColor=f0e2cc&glassesColor=3f2d1e&earringColor=8a6a48&facialHairProbability=0&glassesProbability=0&earringsProbability=0&seed=Heart-warm&hairVariant=full&eyesVariant=smiling&eyebrowsVariant=eyelashesUp&mouthVariant=smile",
+    "af_bella": "https://api.dicebear.com/10.x/micah/svg?backgroundColor=e3d2b4&baseColor=d8b48c&hairColor=7d6047&shirtColor=8a6a48&eyebrowsColor=3f2d1e&eyesColor=3f2d1e&mouthColor=3f2d1e&facialHairColor=3f2d1e&eyeShadowColor=f0e2cc&glassesColor=3f2d1e&earringColor=8a6a48&facialHairProbability=0&glassesProbability=0&earringsProbability=100&seed=Bella-soft&hairVariant=pixie&eyesVariant=eyes&eyebrowsVariant=eyelashesUp&mouthVariant=smile&earringsVariant=stud",
+    "af_nicole": "https://api.dicebear.com/10.x/micah/svg?backgroundColor=e3d2b4&baseColor=c19a70&hairColor=5a3d28&shirtColor=8a6a48&eyebrowsColor=3f2d1e&eyesColor=3f2d1e&mouthColor=3f2d1e&facialHairColor=3f2d1e&eyeShadowColor=f0e2cc&glassesColor=3f2d1e&earringColor=8a6a48&facialHairProbability=0&glassesProbability=100&earringsProbability=0&seed=Nicole-calm&hairVariant=full&eyesVariant=eyes&eyebrowsVariant=eyelashesDown&mouthVariant=smirk&glassesVariant=round",
+    "am_michael": "https://api.dicebear.com/10.x/micah/svg?backgroundColor=e3d2b4&baseColor=a37e58&hairColor=5a3d28&shirtColor=8a6a48&eyebrowsColor=3f2d1e&eyesColor=3f2d1e&mouthColor=3f2d1e&facialHairColor=3f2d1e&eyeShadowColor=f0e2cc&glassesColor=3f2d1e&earringColor=8a6a48&facialHairProbability=0&glassesProbability=0&earringsProbability=0&seed=Michael-clear&hairVariant=fonze&eyesVariant=eyes&eyebrowsVariant=up&mouthVariant=smile&clothesVariant=collared",
+    "bf_emma": "https://api.dicebear.com/10.x/micah/svg?backgroundColor=e3d2b4&baseColor=d8b48c&hairColor=6b4f35&shirtColor=9c7c58&eyebrowsColor=3f2d1e&eyesColor=3f2d1e&mouthColor=3f2d1e&facialHairColor=3f2d1e&eyeShadowColor=f0e2cc&glassesColor=3f2d1e&earringColor=8a6a48&facialHairProbability=0&glassesProbability=0&earringsProbability=100&seed=Emma-gentle&hairVariant=dannyPhantom&eyesVariant=smiling&eyebrowsVariant=eyelashesUp&mouthVariant=smile&earringsVariant=hoop",
+    "bm_george": "https://api.dicebear.com/10.x/micah/svg?backgroundColor=e3d2b4&baseColor=c19a70&hairColor=5a3d28&shirtColor=8a6a48&eyebrowsColor=3f2d1e&eyesColor=3f2d1e&mouthColor=3f2d1e&facialHairColor=3f2d1e&eyeShadowColor=f0e2cc&glassesColor=3f2d1e&earringColor=8a6a48&facialHairProbability=100&glassesProbability=0&earringsProbability=0&seed=George-rich&hairVariant=dougFunny&eyesVariant=eyes&eyebrowsVariant=down&mouthVariant=smirk&facialHairVariant=beard&clothesVariant=collared"
+  }
+}
