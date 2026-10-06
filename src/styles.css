@@ -120,3 +120,4 @@
 @media(max-width:360px){.speed-control .speed-button{width:24px}}
 
 .accent-control{display:flex;align-items:center;gap:12px}.accent-control span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}.accent-control input[type=color]{width:44px;height:36px;padding:3px;border:1px solid var(--border);border-radius:6px;background:var(--soft);cursor:pointer}
+.voice-backend-note{font-size:13px;line-height:1.6;color:var(--subtle);margin:12px 0 20px}.voice-server-settings{margin-bottom:20px}.voice-server-settings label{display:block;font-size:13px;margin-bottom:8px}.voice-server-settings input{width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text)}

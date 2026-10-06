@@ -16,14 +16,14 @@ export interface Book {
 export interface Settings {
   theme: 'light' | 'dark' | 'amoled'; accentColor: string; fontSize: number; lineHeight: number;
   width: number; paragraphSpacing: number; fontFamily: 'serif' | 'sans' | 'mono';
-  alignment: 'left' | 'justify'; voice: string; speed: number; voiceMode: VoiceMode;
+  alignment: 'left' | 'justify'; voice: string; speed: number; voiceMode: VoiceMode; serverUrl: string;
   imageCue: 'off' | 'simple' | 'descriptive'; readingMode: 'scroll';
 }
-export type VoiceMode = 'standard' | 'gpu';
+export type VoiceMode = 'standard' | 'native' | 'server';
 export interface SavedState { location: ReaderLocation; chapter: string; settings: Settings }
 export const DEFAULT_SETTINGS: Settings = {
   theme: 'amoled', accentColor: '#f8d948', fontSize: 20, lineHeight: 1.8, width: 720, paragraphSpacing: 24,
-  fontFamily: 'serif', alignment: 'left', voice: 'af_heart', speed: 1, voiceMode: 'standard',
+  fontFamily: 'serif', alignment: 'left', voice: 'af_heart', speed: 1, voiceMode: 'standard', serverUrl: '',
   imageCue: 'descriptive', readingMode: 'scroll',
 };
 export function locationAt(book: Book, index: number, segmentIndex?: number): ReaderLocation {

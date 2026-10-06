@@ -9,7 +9,7 @@ import type { LibraryBook } from './core/storage';
 import { PlaybackController } from './tts/playback';
 import type { PlaybackState, VoiceActivity as VoiceActivityDetails } from './tts/playback';
 import type { EngineStatus } from './tts/engine';
-import { supportsWebGpu } from './tts/capabilities';
+import { supportsNativeExtension } from './extension';
 import ImageViewer from './components/ImageViewer';
 import Thumbnail from './components/Thumbnail';
 import LibraryContent from './components/LibraryContent';
@@ -38,8 +38,8 @@ const ReadBlock = memo(function ReadBlock({block,active,playing,onImage,onSelect
 }, (before, after)=>before.block===after.block&&before.active===after.active&&before.playing===after.playing);
 export default function App(){
   const [book,setBook]=useState<Book>();const [location,setLocation]=useState<ReaderLocation>();const [settings,setSettings]=useState<Settings>(DEFAULT_SETTINGS);
-  const [gpuAvailability]=useState(()=>supportsWebGpu());const [gpuSupported,setGpuSupported]=useState(false);
-  useEffect(()=>{let active=true;void gpuAvailability.then(supported=>{if(active)setGpuSupported(supported);});return()=>{active=false;};},[gpuAvailability]);
+  const [nativeAvailability]=useState(()=>supportsNativeExtension());const [nativeSupported,setNativeSupported]=useState(false);
+  useEffect(()=>{let active=true;void nativeAvailability.then(supported=>{if(active)setNativeSupported(supported);});return()=>{active=false;};},[nativeAvailability]);
   const {route,routeRef,navigate:navigateRoute,setModal,setViewer,setPanel}=useAppRoute();
   const panel=route.panel;const modal=route.modal;const viewer=route.illustration!==null&&book&&route.illustration<book.images.length?route.illustration:null;
   const [sidebar,setSidebar]=useState(true);const [mobileMenu,setMobileMenu]=useState(false);
@@ -74,7 +74,7 @@ export default function App(){
   },[]);
   useEffect(()=>{try{localStorage.setItem('listen-sidebar-width',String(sidebarWidth));}catch{/* Resizing works when storage is unavailable. */}},[sidebarWidth]);
   useEffect(()=>{
-    const instance=new PlaybackController({onState:setPlayback,onStatus:setEngineStatus,onBuffer:setBufferSeconds,onActivity:setVoiceActivity,onError:message=>{setError(`Local voice: ${message}. Try again from voice settings.`);},onLocation:next=>{const moved=locationRef.current?.blockIndex!==next.blockIndex;locationRef.current=next;setLocation(next);if(moved)scrollToBlock(next);}});
+    const instance=new PlaybackController({onState:setPlayback,onStatus:setEngineStatus,onBuffer:setBufferSeconds,onActivity:setVoiceActivity,onError:message=>{setError(`Voice: ${message}. Try again from voice settings.`);},onLocation:next=>{const moved=locationRef.current?.blockIndex!==next.blockIndex;locationRef.current=next;setLocation(next);if(moved)scrollToBlock(next);}});
     controller.current=instance;
     if(bookRef.current&&locationRef.current)instance.setBook(bookRef.current,locationRef.current,settingsRef.current);
     return()=>{void instance.dispose();};
@@ -94,8 +94,10 @@ export default function App(){
       const state=await getProgress(next.id).catch(()=>undefined);
       if(generation!==bookLoadGeneration.current){closeBook(next);return;}
       const position=locationAt(next,state?.location.blockIndex??(next.blocks[0]?.kind==='heading'?1:0),state?.location.segmentIndex);
-      const supported=await gpuAvailability;
-      const prefs={...(state?.settings?{...DEFAULT_SETTINGS,...state.settings}:settingsRef.current),...(!supported?{voiceMode:'standard' as const}:{})};
+      const prefs={...(state?.settings?{...DEFAULT_SETTINGS,...state.settings}:settingsRef.current)};
+      const nativeAvailable=await nativeAvailability;
+      if (!['standard','server','native'].includes(prefs.voiceMode) || (!nativeAvailable && prefs.voiceMode==='native')) prefs.voiceMode='standard';
+      if (!state?.settings && nativeAvailable && prefs.voiceMode==='standard') prefs.voiceMode='native';
       if(store){
         try{
           const existing=(await getBooks()).find(item=>item.id===next.id);
@@ -117,7 +119,7 @@ export default function App(){
       if(next.warnings.length)setNotice(`${next.warnings.length} book resource${next.warnings.length===1?'':'s'} could not be loaded. The rest of your book is ready.`);
     }catch(e){if(generation===bookLoadGeneration.current)setError(e instanceof Error?e.message:'Unable to open this EPUB.');}
     finally{if(generation===bookLoadGeneration.current)setBusy(false);}
-  },[refreshLibrary,scrollToBlock,navigateRoute,routeRef,gpuAvailability]);
+  },[refreshLibrary,scrollToBlock,navigateRoute,routeRef,nativeAvailability]);
   useEffect(()=>{
     if(initRef.current)return;initRef.current=true;
     void(async()=>{
@@ -180,6 +182,7 @@ export default function App(){
   },[scrollToBlock]);
   const togglePlay=useCallback(()=>{
     if(playbackCheck.current)return;
+    if(settingsRef.current.voiceMode!=='standard'){controller.current?.toggle();return;}
     if(engineStatus.state==='idle'&&playback==='paused'){
       const instance=controller.current;if(!instance)return;
       const requested=settingsRef.current;const bookGeneration=bookLoadGeneration.current;
@@ -190,8 +193,8 @@ export default function App(){
         try{
           const files=await getSpeechDownloads(requested.voice).catch(()=>undefined);
           await unlocked;
-          if(controller.current!==instance||bookGeneration!==bookLoadGeneration.current||requested.voice!==settingsRef.current.voice||requested.voiceMode!==settingsRef.current.voiceMode)return;
-          if(files?.voice&&files.runtime&&files[requested.voiceMode])instance.toggle();
+          if(controller.current!==instance||bookGeneration!==bookLoadGeneration.current||requested.voice!==settingsRef.current.voice||requested.voiceMode!==settingsRef.current.voiceMode||requested.serverUrl!==settingsRef.current.serverUrl)return;
+          if(files?.voice&&files.runtime&&files.standard)instance.toggle();
           else setModal('model');
         }finally{playbackCheck.current=false;}
       })();
@@ -330,10 +333,10 @@ export default function App(){
         <div className="setting-row"><label htmlFor="line-height">Line height</label><select id="line-height" value={settings.lineHeight} onChange={e=>updateSetting('lineHeight',Number(e.target.value))}>{[1.4,1.6,1.8,2].map(n=><option key={n}>{n}</option>)}</select></div>
         <div className="setting-row"><label htmlFor="content-width">Content width</label><select id="content-width" value={settings.width} onChange={e=>updateSetting('width',Number(e.target.value))}>{[560,640,720,800,880].map(n=><option key={n} value={n}>{n}px</option>)}</select></div>
         <div className="setting-row"><label htmlFor="paragraph-spacing">Paragraph spacing</label><select id="paragraph-spacing" value={settings.paragraphSpacing} onChange={e=>updateSetting('paragraphSpacing',Number(e.target.value))}>{[12,16,20,24,28,32,36,40,48].map(n=><option key={n} value={n}>{n}px</option>)}</select></div>
-        <div className="setting-row"><span>Text alignment</span><div className="segmented-control small"><button className={settings.alignment==='left'?'selected':''} onClick={()=>updateSetting('alignment','left')}>Left</button><button className={settings.alignment==='justify'?'selected':''} onClick={()=>updateSetting('alignment','justify')}>Justified</button></div></div><div className="setting-row"><label htmlFor="image-cue">Illustration narration</label><select id="image-cue" value={settings.imageCue} onChange={e=>updateSetting('imageCue',e.target.value as Settings['imageCue'])}><option value="descriptive">Alt text or caption</option><option value="simple">Say “Image here”</option><option value="off">Off</option></select></div><button className="text-button" onClick={()=>setSettings(s=>({...DEFAULT_SETTINGS,voice:s.voice,voiceMode:s.voiceMode,speed:s.speed,theme:s.theme,accentColor:s.accentColor,imageCue:s.imageCue}))}>Reset reading appearance</button></>}
-      {modal==='voice'&&<VoiceSettings key={`${book?.id}|${settings.voice}|${settings.voiceMode}`} voices={VOICES} voice={settings.voice} mode={settings.voiceMode} gpuSupported={gpuSupported} onDone={(voice,voiceMode)=>{setSettings(current=>({...current,voice,voiceMode}));setModal(null);}}/> }
+        <div className="setting-row"><span>Text alignment</span><div className="segmented-control small"><button className={settings.alignment==='left'?'selected':''} onClick={()=>updateSetting('alignment','left')}>Left</button><button className={settings.alignment==='justify'?'selected':''} onClick={()=>updateSetting('alignment','justify')}>Justified</button></div></div><div className="setting-row"><label htmlFor="image-cue">Illustration narration</label><select id="image-cue" value={settings.imageCue} onChange={e=>updateSetting('imageCue',e.target.value as Settings['imageCue'])}><option value="descriptive">Alt text or caption</option><option value="simple">Say “Image here”</option><option value="off">Off</option></select></div><button className="text-button" onClick={()=>setSettings(s=>({...DEFAULT_SETTINGS,voice:s.voice,voiceMode:s.voiceMode,serverUrl:s.serverUrl,speed:s.speed,theme:s.theme,accentColor:s.accentColor,imageCue:s.imageCue}))}>Reset reading appearance</button></>}
+      {modal==='voice'&&<VoiceSettings key={`${book?.id}|${settings.voice}|${settings.voiceMode}`} voices={VOICES} voice={settings.voice} mode={settings.voiceMode} serverUrl={settings.serverUrl} nativeSupported={nativeSupported} onDone={(voice,voiceMode,serverUrl)=>{setSettings(current=>({...current,voice,voiceMode,serverUrl}));setModal(null);}}/> }
       {modal==='help'&&<><div className="shortcut-list">{[['Space','Play / pause narration'],['←','Previous reading block'],['→','Next reading block'],['C','Open contents'],['I','Open illustrations'],['Esc','Close a panel or viewer']].map(([key,label])=><div key={key}><span>{label}</span><kbd>{key}</kbd></div>)}</div><p className="modal-note">Click a passage to make it your current reading position. Your next play starts right there.</p></>}
-      {modal==='model'&&<VoiceDownload voice={voice} mode={settings.voiceMode} onStart={()=>{setModal(null);void controller.current?.play();}}/>}
+      {modal==='model'&&<VoiceDownload voice={voice} onStart={()=>{setModal(null);void controller.current?.play();}}/>}
 
     </div></div>}
     {viewer!==null&&book&&<ImageViewer images={book.images} index={viewer} onChange={setViewer} onClose={()=>setViewer(null)}/>}

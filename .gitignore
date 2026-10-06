@@ -3,3 +3,9 @@ dist/
 .env*
 !.env.example
 *.tsbuildinfo
+dist-extension/
+.venv/
+__pycache__/
+native-host/launch.sh
+native-host/launch.cmd
+native-host/com.listen_al_gaib.gpu.json

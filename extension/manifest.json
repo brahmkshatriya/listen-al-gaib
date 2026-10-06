@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Listen al Gaib GPU Server",
+  "version": "0.2.0",
+  "description": "Starts a local GPU speech server for Listen al Gaib and stops it when its tab closes.",
+  "permissions": [
+    "nativeMessaging"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://brahmkshatriya.github.io/reader/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_title": "Open Listen al Gaib"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxii4lxrHG0dlioeLGalasxremARH1OTbIJuKF1bfQzIbFSeuxIftI3j6gNurEq3dIYrI3kf33Igl5FbwCB2NrY4zlhlR4aJE37L0tpJYVilXoEleGBriDGXr9Q2I0vzyebRMmjArKIQUwsxa+oYbLELrRm3aML70A9FMf8u0RuRDoHlIFStShJh2LIye6EhztvjOvkzwuPZ88x5HTB6L0mUk3nic7DlYnL7njqS5ljmj7odKKdEoc0YRFg7ibt5A+JN8d594RBB3kRXL7RBBr9v4CfBxAv8wEAlPFPGF7I4WV4KCPkLLHFbAxETN4vnlMKsLOpoweA3vcAhgHuAhvQIDAQAB"
+}

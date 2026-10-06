@@ -1,7 +1,8 @@
 import type { Book, ReadingBlock, ReaderLocation, Settings } from '../core/types';
 import { imageAnnouncement, locationAt } from '../core/types';
 import { speechSegments, splitSpeech } from '../core/speech-segments';
-import { LocalTtsEngine, type EngineStatus, type TtsEngine } from './engine';
+import { type EngineStatus, type TtsEngine } from './engine';
+import { SpeechEngine } from './backend';
 import { PitchPreservingAudioPlayer, prepareAudio, type AudioOutput, type PreparedAudio } from './audio-player';
 export type PlaybackState = 'paused' | 'loading' | 'playing';
 export interface VoiceActivity { current: string; next: string; ready: number; pending: number; seconds: number }
@@ -37,7 +38,7 @@ export class PlaybackController {
     onBuffer?: (seconds: number | null) => void;
     onActivity?: (activity: VoiceActivity) => void;
   }, engine?: TtsEngine, output?: AudioOutput) {
-    this.engine = engine || new LocalTtsEngine(events.onStatus);
+    this.engine = engine || new SpeechEngine(events.onStatus);
     this.output = output;
   }
   private reportActivity() {
@@ -57,6 +58,7 @@ export class PlaybackController {
   }
   setBook(book: Book, location: ReaderLocation, settings: Settings) {
     this.stop(); this.clearCache(); this.cueSegments.clear();
+    this.engine.configure?.(settings.voiceMode, settings.serverUrl);
     this.book = book; this.settings = settings; this.location = this.normalize(location);
     this.reportActivity();
     this.warmAhead();
@@ -64,14 +66,14 @@ export class PlaybackController {
   updateSettings(settings: Settings) {
     const voiceChanged = this.settings?.voice !== settings.voice;
     const cueChanged = this.settings?.imageCue !== settings.imageCue;
-    const modeChanged = this.settings?.voiceMode !== settings.voiceMode;
+    const modeChanged = this.settings?.voiceMode !== settings.voiceMode || this.settings?.serverUrl !== settings.serverUrl;
     this.settings = settings;
     this.output?.setSpeed(settings.speed);
     this.reportActivity();
     if (voiceChanged || cueChanged || modeChanged) {
       const restart = this.active;
       this.stop(); this.cueSegments.clear();
-      if (modeChanged) this.engine.setMode?.(settings.voiceMode);
+      if (modeChanged) { this.engine.configure?.(settings.voiceMode, settings.serverUrl); this.engine.setMode?.(settings.voiceMode); }
       if (restart) void this.play();
       else if (!modeChanged) this.warmAhead();
     }
@@ -155,7 +157,7 @@ export class PlaybackController {
   }
   private key(unit: SpeechUnit): string {
     // Identical cues can reuse one clip while still announcing once at each actual image position.
-    return `${this.book!.id}|${this.settings!.voiceMode}|${this.settings!.voice}|${unit.text}`;
+    return `${this.book!.id}|${this.settings!.voiceMode}|${this.settings!.serverUrl}|${this.settings!.voice}|${unit.text}`;
   }
   private audioAt(unit: SpeechUnit): Promise<PreparedAudio> {
     const key = this.key(unit);

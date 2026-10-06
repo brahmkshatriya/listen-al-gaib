@@ -1,6 +1,6 @@
 import type { VoiceMode } from '../core/types';
 export interface TtsAudio { data:Float32Array; sampleRate:number }
-export interface TtsEngine { readonly status?:EngineStatus; setMode?(mode:VoiceMode):void; loadVoice(voiceId:string,mode?:VoiceMode):Promise<void>; synthesize(text:string):Promise<TtsAudio>; cancel():void; dispose():Promise<void> }
+export interface TtsEngine { readonly status?:EngineStatus; setMode?(mode:VoiceMode):void; configure?(mode:VoiceMode,serverUrl:string):void; loadVoice(voiceId:string,mode?:VoiceMode):Promise<void>; synthesize(text:string):Promise<TtsAudio>; cancel():void; dispose():Promise<void> }
 export interface EngineStatus { state:'idle'|'loading'|'ready'|'error'; progress?:number; device?:string; message?:string; file?:string; generating?:string; asset?:{file:string;cached:boolean;complete:boolean} }
 export class LocalTtsEngine implements TtsEngine {
   private worker?:Worker; private voice='af_heart'; private epoch=0; private id=0;

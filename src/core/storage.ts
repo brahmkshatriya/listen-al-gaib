@@ -25,7 +25,6 @@ export async function getSpeechDownloads(voice:string) {
   const modelRoot='/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/';
   return {
     standard:keys.some(key=>key.includes(modelRoot)&&/\/onnx\/model_quantized\.onnx(?:\?|$)/.test(key)),
-    gpu:keys.some(key=>key.includes(modelRoot)&&/\/onnx\/model\.onnx(?:\?|$)/.test(key)),
     voice:keys.some(key=>key.includes(modelRoot)&&key.split('?')[0].endsWith(`/voices/${voice}.bin`)),
     runtime:keys.some(key=>/\/ort-wasm[^/]*\.wasm(?:\?|$)/.test(key)),
   };

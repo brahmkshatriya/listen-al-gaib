@@ -1,0 +1,3 @@
+kokoro>=0.9.4,<0.10
+numpy>=1.26
+transformers>=4.51,<5

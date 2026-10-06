@@ -1,13 +1,11 @@
 /// <reference lib="webworker" />
 import { modelCache } from '../core/storage';
 import type { KokoroTTS as KokoroType } from 'kokoro-js';
-import type { VoiceMode } from '../core/types';
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 let engine: KokoroType | undefined;
 let loading: Promise<string> | undefined;
 let epoch = 0;
 let running = false;
-let mode:VoiceMode='standard';
 const originalFetch=scope.fetch.bind(scope);
 // Cache voice files as well as weights in IndexedDB, including Kokoro's direct voice fetches.
 scope.fetch=async (input:RequestInfo|URL, init?:RequestInit) => {
@@ -37,14 +35,8 @@ async function initialize() {
   if(env.backends.onnx.wasm) env.backends.onnx.wasm.numThreads = scope.crossOriginIsolated ? Math.min(4,Math.ceil((navigator.hardwareConcurrency||2)/2)) : 1;
   const { KokoroTTS } = await import('kokoro-js');
   const progress_callback = (data: {status:string;progress?:number;file?:string}) => scope.postMessage({type:'progress',...data});
-  if (mode==='gpu') {
-    const adapter='gpu' in navigator ? await (navigator as unknown as {gpu:{requestAdapter():Promise<unknown>}}).gpu.requestAdapter() : null;
-    if(!adapter)throw new Error('GPU is unavailable on this device. Choose Standard in voice settings.');
-    engine=await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX',{device:'webgpu',dtype:'fp32',progress_callback});
-  } else {
-    engine=await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX',{device:'wasm',dtype:'q8',progress_callback});
-  }
-  return mode==='gpu'?'WebGPU':'WASM';
+  engine=await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX',{device:'wasm',dtype:'q8',progress_callback});
+  return 'WASM';
 }
 async function drain() {
   if(running)return;running=true;
@@ -68,7 +60,6 @@ async function drain() {
 scope.onmessage=({data})=>{
   if(data.type==='cancel'){epoch=data.epoch;jobs.length=0;}
   else if(data.type==='load') {
-    mode=data.mode==='gpu'?'gpu':'standard';
     const requestEpoch=data.epoch??epoch;const voice=data.voice||'af_heart';
     loading??=initialize().catch(error=>{loading=undefined;throw error;});
     void loading.then(async device=>{
