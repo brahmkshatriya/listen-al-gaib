@@ -67,7 +67,7 @@ The extension owns one server per requesting tab. Pressing Play in **Native GPU*
 
 6. Reload the extension and the reader website. Open **Voice settings → Native GPU**, then press Play. The first launch downloads model weights and voices; later launches reuse the Python/Hugging Face cache. Chrome may require restarting after registering a native messaging host.
 
-The extension is configured for `https://brahmkshatriya.github.io/reader/`, `http://localhost` and `http://127.0.0.1` development URLs. For a different deployment, update both `extension/manifest.json` content-script matches and the trusted URL check in `extension/background.js`, rebuild, and reload the extension.
+The extension is configured for `https://brahmkshatriya.github.io/listen-al-gaib/`, the former `/reader/` site, `http://localhost` and `http://127.0.0.1` development URLs. For a different deployment, update both `extension/manifest.json` content-script matches and the trusted URL check in `extension/background.js`, rebuild, and reload the extension.
 
 The server binds only to `127.0.0.1` on a randomly assigned port, authenticates requests with a per-process secret, and is reached through the extension. The website does not need CORS or local network access permission for this managed server. The native messaging manifest allows only the extension ID you registered. No GPU model or runtime ships inside the extension.
 

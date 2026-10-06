@@ -15,6 +15,7 @@
   "content_scripts": [
     {
       "matches": [
+        "https://brahmkshatriya.github.io/listen-al-gaib/*",
         "https://brahmkshatriya.github.io/reader/*",
         "http://localhost/*",
         "http://127.0.0.1/*"

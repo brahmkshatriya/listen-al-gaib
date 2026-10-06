@@ -3,7 +3,7 @@ const servers = new Map();
 const trusted = url => {
   try {
     const parsed = new URL(url);
-    return (parsed.origin === 'https://brahmkshatriya.github.io' && parsed.pathname.startsWith('/reader/')) ||
+    return (parsed.origin === 'https://brahmkshatriya.github.io' && ['/listen-al-gaib/', '/reader/'].some(path => parsed.pathname.startsWith(path))) ||
       (parsed.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(parsed.hostname));
   } catch { return false; }
 };
@@ -72,5 +72,5 @@ chrome.tabs.onRemoved.addListener(tabId => {
   state.port.disconnect();
 });
 chrome.action.onClicked.addListener(() => {
-  chrome.tabs.create({ url: 'https://brahmkshatriya.github.io/reader/' });
+  chrome.tabs.create({ url: 'https://brahmkshatriya.github.io/listen-al-gaib/' });
 });

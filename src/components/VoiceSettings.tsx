@@ -37,7 +37,7 @@ export default function VoiceSettings({ voices, voice: initialVoice, mode: initi
         </label>)}
       </div>
     </fieldset>
-    {mode === 'native' && <p className="voice-backend-note">Requires the native helper installed on this computer. The extension starts a local PyTorch GPU server when you press Play and stops it when this tab closes. <a href="https://github.com/brahmkshatriya/reader#native-gpu-extension" target="_blank" rel="noreferrer">Setup instructions</a>.</p>}
+    {mode === 'native' && <p className="voice-backend-note">Requires the native helper installed on this computer. The extension starts a local PyTorch GPU server when you press Play and stops it when this tab closes. <a href="https://github.com/brahmkshatriya/listen-al-gaib#native-gpu-extension" target="_blank" rel="noreferrer">Setup instructions</a>.</p>}
     {!nativeSupported && <p className="voice-backend-note">Native GPU narration needs the desktop extension and helper. You can always use your own server or WASM here.</p>}
     {mode === 'server' && <div className="voice-server-settings">
       <label htmlFor="speech-server">Speech server URL</label>

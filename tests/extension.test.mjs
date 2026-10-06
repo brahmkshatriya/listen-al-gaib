@@ -17,7 +17,7 @@ function setup() {
     action: { onClicked: { addListener: fn => callbacks.click = fn } },
   };
   vm.runInNewContext(source, { chrome, URL, setTimeout, clearTimeout, AbortController, fetch, btoa });
-  const send = (id, type = 'start', url = 'https://brahmkshatriya.github.io/reader/') => new Promise(resolve => {
+  const send = (id, type = 'start', url = 'https://brahmkshatriya.github.io/listen-al-gaib/') => new Promise(resolve => {
     const handled = callbacks.message({ type }, { tab: { id }, frameId: 0, url }, resolve);
     if (!handled) resolve({ rejected: true });
   });
@@ -35,6 +35,8 @@ test('reload reuses the same server and only the owning tab closing disconnects 
 test('detection does not start a server and untrusted sites cannot start one', async () => {
   const { send, ports } = setup();
   assert.equal((await send(1, 'ping')).available, true); assert.equal(ports.length, 0);
+  assert.equal((await send(1, 'ping', 'https://brahmkshatriya.github.io/reader/')).available, true);
+  assert.equal((await send(1, 'start', 'https://brahmkshatriya.github.io/other/')).rejected, true);
   assert.equal((await send(1, 'start', 'https://example.com')).rejected, true);
   assert.equal(ports.length, 0);
 });
